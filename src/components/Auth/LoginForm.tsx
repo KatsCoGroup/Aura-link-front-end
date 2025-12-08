@@ -4,6 +4,7 @@ import AuthInput from './AuthInput';
 import AuthButton from './AuthButton';
 import SocialLogins from './SocialLogins';
 import { Wallet } from 'lucide-react';
+import { useWallet } from '@/hooks/use-wallet';
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
@@ -20,6 +21,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onGmailLogin,
   onTwitterLogin,
 }) => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -31,11 +33,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <AuthCard>
       <h1 className="text-3xl font-bold text-center text-auth-card-foreground mb-8">
-        Login
+        Connect Wallet
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <AuthInput
+        {/* <AuthInput
           label="Email/username"
           type="text"
           value={email}
@@ -77,8 +79,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             }
           >
             Login
-          </AuthButton>
+          </AuthButton> */}
 
+        <div className="pt-2">
           <AuthButton
             type="button"
             variant="dark"
@@ -98,7 +101,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       <SocialLogins />
 
-      <p className="text-center text-auth-muted-foreground mt-6">
+      {/* <p className="text-center text-auth-muted-foreground mt-6">
         Don't have an account?{' '}
         <button
           onClick={onSignUpClick}
@@ -106,7 +109,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         >
           Sign up
         </button>
-      </p>
+      </p> */}
     </AuthCard>
   );
 };

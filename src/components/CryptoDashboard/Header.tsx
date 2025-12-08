@@ -1,9 +1,13 @@
 import { Circle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWallet } from "@/hooks/use-wallet";
 
 const navItems = ["Home", "About Us", "Ecosystem", "Lore", "Community"];
 
 export const Header = () => {
+  const {account, provider} = useWallet()
+
+  // console.log("Header account:", provider.getBalance(account));
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b border-border">
       {/* Logo */}

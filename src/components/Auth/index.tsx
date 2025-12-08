@@ -4,6 +4,7 @@ import SignUpEmail from './SignUpEmail';
 import SignUpRegister from './SignUpRegister';
 import MobileVerification from './MobileVerification';
 import VerifyCode from './VerifyCode';
+import { useWallet } from '@/hooks/use-wallet';
 
 export type AuthStep =
   | 'login'
@@ -23,6 +24,7 @@ export const Auth: React.FC<AuthProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState<AuthStep>(initialStep);
   const [verifyError, setVerifyError] = useState<string>('');
+    const {connectWallet} = useWallet();
 
   const handleLogin = (email: string, password: string) => {
     console.log('Login:', { email, password });
@@ -59,6 +61,13 @@ export const Auth: React.FC<AuthProps> = ({
     onAuthSuccess?.();
   };
 
+
+  const handleWalletConnect = () => {
+    connectWallet().then(() => {
+      onAuthSuccess?.();
+    });
+
+  }
   const renderStep = () => {
     switch (currentStep) {
       case 'login':
@@ -66,7 +75,7 @@ export const Auth: React.FC<AuthProps> = ({
           <LoginForm
             onLogin={handleLogin}
             onSignUpClick={() => setCurrentStep('signup-email')}
-            onConnectWallet={() => console.log('Connect wallet')}
+            onConnectWallet={() => handleWalletConnect()}
             onGmailLogin={() => console.log('Gmail login')}
             onTwitterLogin={() => console.log('Twitter login')}
           />
