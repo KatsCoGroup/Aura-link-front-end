@@ -27,7 +27,6 @@ const App = () => {
           <Route path="/" element={isConnected? <Index />:<AuthPage/>} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/about" element={isConnected?<AboutPage />: <AuthPage/>} />
-         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

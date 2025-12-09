@@ -7,6 +7,7 @@ import { WalletTracker } from "./WalletTracker";
 import { Tabs } from "./Ta";
 import { useState } from "react";
 import { GigCard } from "./GigCard";
+import Tracker from "../Tracker";
 
 
 
@@ -27,7 +28,7 @@ const gigsData = [
   },
   {
     id: 3,
-    status: "Hiring",
+    status: "You Posted",
     description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been",
     price: 90,
   },
@@ -47,7 +48,7 @@ export const CryptoDashboard = () => {
      
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-foreground  text-black">
       <Header />
       <main>
         <ProfileSection />
@@ -60,6 +61,7 @@ export const CryptoDashboard = () => {
              {gigsData.map((gig) => (
                <GigCard
                  key={gig.id}
+                  id={gig.id}
                  status={gig.status}
                  description={gig.description}
                  price={gig.price}
@@ -80,7 +82,7 @@ export const CryptoDashboard = () => {
    
          {activeTab === "TRACKER" && (
            <div className="p-6 text-muted-foreground text-center py-12">
-             Tracker content
+      <Tracker/>
            </div>
          )}
        </section>

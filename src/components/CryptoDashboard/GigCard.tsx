@@ -1,13 +1,16 @@
 import { User } from "lucide-react";
+import JobApplicationDialog from "./GigApplication";
+import JobApplicantsDialog from "./GigApplicants";
 
 interface GigCardProps {
+  id: number;
   status: string;
   description: string;
   price: number;
   biddersCount?: number;
 }
 
-export const GigCard = ({ status, description, price, biddersCount = 8 }: GigCardProps) => {
+export const GigCard = ({ id, status, description, price, biddersCount = 8 }: GigCardProps) => {
   const bidders = Array.from({ length: biddersCount }, (_, i) => i);
 
   return (
@@ -40,20 +43,27 @@ export const GigCard = ({ status, description, price, biddersCount = 8 }: GigCar
 
       {/* Right Section - Bidding */}
       <div className="flex items-center gap-6">
-        <div>
-          <p className="text-sm font-semibold text-foreground mb-2">Bidding</p>
-          <div className="grid grid-cols-4 gap-1.5">
-            {bidders.map((i) => (
-              <div
-                key={i}
-                className="w-6 h-6 rounded-full bg-muted-foreground/40"
-              />
-            ))}
-          </div>
-        </div>
+        {status == "You Posted" ? "" : (""
+
+        //   <div>
+          // <p className="text-sm font-semibold text-foreground mb-2">Bidding</p>
+          // <div className="grid grid-cols-4 gap-1.5">
+          //   {bidders.map((i) => (
+          //     <div
+          //     key={i}
+          //     className="w-6 h-6 rounded-full bg-muted-foreground/40"
+          //     />
+          //   ))}
+          // </div>
+        // </div>
+
+     
+          )}
 
         {/* Token */}
-        <span className="text-xl font-semibold text-foreground">Token</span>
+        <div className="text-xl font-semibold text-foreground"> {status == "You Posted" ? (<JobApplicantsDialog id={id}/>) : (<JobApplicationDialog id={id} />)} 
+   
+                </div>
       </div>
     </div>
   );
