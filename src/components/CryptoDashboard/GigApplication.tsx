@@ -59,8 +59,8 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
               id="name"
               type="text"
               placeholder="Enter your full name"
-              value={formDataExtended.name}
-              onChange={(e) => setFormDataExtended({ ...formDataExtended, name: e.target.value })}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
               required
             />
@@ -73,8 +73,8 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
             <Textarea
               id="message"
               placeholder="Tell us why you're interested in this position..."
-              value={formDataExtended.message}
-              onChange={(e) => setFormDataExtended({ ...formDataExtended, message: e.target.value })}
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               className="w-full min-h-[200px] bg-background border-border text-foreground placeholder:text-muted-foreground resize-none"
               required
             />
@@ -88,8 +88,8 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
               id="estimatedTime"
               type="number"
               min={1}
-              value={formDataExtended.estimatedTime}
-              onChange={(e) => setFormDataExtended({ ...formDataExtended, estimatedTime: Number(e.target.value) })}
+              value={formData.estimatedTime}
+              onChange={(e) => setFormData({ ...formData, estimatedTime: Number(e.target.value) })}
               className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
               required
             />
