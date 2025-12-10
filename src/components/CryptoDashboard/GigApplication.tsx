@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import success from "/success.png";
 
 interface JobApplicationDialogProps {
   trigger?: React.ReactNode;
@@ -18,6 +19,8 @@ interface JobApplicationDialogProps {
 
 const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
   const [open, setOpen] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     message: "",
@@ -27,7 +30,8 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
     e.preventDefault();
     console.log("Application submitted:", formData);
     setFormData({ name: "", message: "" });
-    setOpen(false);
+    setIsSubmitted(true);
+    // setOpen(false);
   };
 
   return (
@@ -43,7 +47,7 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
             Job Application 
           </DialogTitle>
         </DialogHeader>
-        
+           {!isSubmitted ? (
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-foreground">
@@ -88,6 +92,21 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
             </Button>
           </div>
         </form>
+          ) : (
+          <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
+            <img
+              src={success}
+              alt="Success"
+              className="w-32 h-32 md:w-48 md:h-48 object-contain animate-fade-in"
+            />
+            <p className="mt-4 text-lg font-semibold text-foreground text-center">
+              Application Submitted Successfully!
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground text-center">
+              Thank you for applying. We'll review your application shortly.
+            </p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

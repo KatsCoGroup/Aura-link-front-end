@@ -42,6 +42,82 @@ export interface Gig {
 }
 
 
+const gigsoo = [
+  {
+    blockchainGigId: 1,
+    employer: "0x1234567890123456789012345678901234567890",
+    worker: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    title: "Build React Component Library",
+    description:
+      "Create a reusable component library with Storybook documentation and TypeScript support",
+    paymentAmount: "2500.00",
+    requiredBadge: "React",
+    deadline: 1704067200,
+    status: "COMPLETED",
+    featured: true,
+    featuredUntil: "2024-12-20T23:59:59Z",
+    urgent: false,
+    txHash: "0xabcd1234efgh5678ijkl9012mnop3456qrst7890",
+    createdAt: "2024-01-10T10:00:00Z",
+    completedAt: "2024-01-28T15:30:00Z",
+    applications: [
+      {
+        workerId: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+        coverLetter:
+          "I have 5+ years of React experience and have built similar libraries",
+        estimatedTime: 14,
+        appliedAt: "2024-01-10T12:00:00Z",
+      },
+      {
+        workerId: "0xfedcbafedcbafedcbafedcbafedcbafedcbafed",
+        coverLetter: "Great project! I love working with component systems",
+        estimatedTime: 18,
+        appliedAt: "2024-01-10T13:15:00Z",
+      },
+    ],
+  },
+  {
+    blockchainGigId: 2,
+    employer: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    worker: "0xfedcbafedcbafedcbafedcbafedcbafedcbafed",
+    title: "Design Mobile App UI Mockups",
+    description:
+      "Create high-fidelity mobile app mockups for iOS and Android platforms including user flows",
+    paymentAmount: "1800.00",
+    requiredBadge: "UI/UX Design",
+    deadline: 1704326400,
+    status: "SUBMITTED",
+    featured: false,
+    featuredUntil: null,
+    urgent: true,
+    txHash: "0x1234abcd5678efgh9012ijkl3456mnop7890qrst",
+    createdAt: "2024-01-15T09:30:00Z",
+    completedAt: null,    
+    applications: [
+      {
+        workerId: "0xfedcbafedcbafedcbafedcbafedcbafedcbafed",    
+
+
+        coverLetter:          "Experienced UI/UX designer with a portfolio of mobile apps",
+        estimatedTime: 10,
+        appliedAt: "2024-01-15T11:00:00Z",
+
+      },
+    ],
+  },
+];
+
+
+
+
+
+export interface GigsApiResponse {
+  success: boolean;
+  gigs: Gig[];
+  total: number;
+  limit: number;
+  skip: number;
+}
 
 
 export const CryptoDashboard = () => {
@@ -55,19 +131,20 @@ export const CryptoDashboard = () => {
    useEffect(() => {
     const fetchGigs = async () => {
       setLoading(true);
+       setGigs(gigsoo);
       setError(null);
       try {
   // Prefer a Vite env var if provided, otherwise fallback to relative path
   const apiEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-  const apiBase = apiEnv?.VITE_API_BASE || "";
+  const apiBase = apiEnv?.VITE_API_BASE || "http://localhost:3000";
   const res = await fetch(`${apiBase}/api/gigs`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: Gig[] = await res.json();
-        setGigs(data || []);
+        const data: GigsApiResponse = await res.json();
+        // setGigs(gigsoo);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         console.error("Failed to fetch gigs:", msg);
-        setError(msg);
+        // setError(msg);
       } finally {
         setLoading(false);
       }
@@ -94,8 +171,8 @@ export const CryptoDashboard = () => {
              )}
              {!loading && !error && gigs.map((gig, idx) => (
                <GigCard
-                 key={gig.id}
-                  id={gig.id}
+                 key={idx}
+                  id={idx}
                  status={gig.status}
                  description={gig.description}
                  price={Number(gig.paymentAmount) || 0}
