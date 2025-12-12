@@ -9,7 +9,7 @@ const tabs = ["PROFILE", "GIGS", "TRACKER"];
 
 export const Tabs = ({ activeTab, onTabChange }: TabsProps) => {
   return (
-    <div className="flex border-b border-border">
+    <div className="flex">
       {tabs.map((tab) => (
         <button
           key={tab}
@@ -17,8 +17,8 @@ export const Tabs = ({ activeTab, onTabChange }: TabsProps) => {
           className={cn(
             "flex-1 py-4 text-sm font-medium tracking-widest transition-colors",
             activeTab === tab
-              ? "text-foreground border-b-2 border-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "text-foreground border-2 border-b-0 border-foreground rounded-t-lg"
+              : "text-muted-foreground hover:text-foreground border-b-2 border-foreground"
           )}
         >
           {tab}

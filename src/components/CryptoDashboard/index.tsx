@@ -5,15 +5,10 @@ import { NFTGallery } from "./NFTGallery";
 import { Markets } from "./Markets";
 import { WalletTracker } from "./WalletTracker";
 import { Tabs } from "./Ta";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { GigCard } from "./GigCard";
 import Tracker from "../Tracker";
-
-
-
-
-
-
+import { GradientLoadingAnimation } from "../ui/Loading";
 
 // Define the Gig shape based on your backend schema
 export interface Gig {
@@ -25,7 +20,13 @@ export interface Gig {
   paymentAmount: string; // stored as string in schema
   requiredBadge?: string;
   deadline: number;
-  status: "OPEN" | "ASSIGNED" | "SUBMITTED" | "COMPLETED" | "CANCELLED" | string;
+  status:
+    | "OPEN"
+    | "ASSIGNED"
+    | "SUBMITTED"
+    | "COMPLETED"
+    | "CANCELLED"
+    | string;
   featured?: boolean;
   featuredUntil?: string | Date;
   urgent?: boolean;
@@ -40,7 +41,6 @@ export interface Gig {
   }>;
   _id?: string;
 }
-
 
 const gigsoo = [
   {
@@ -92,24 +92,19 @@ const gigsoo = [
     urgent: true,
     txHash: "0x1234abcd5678efgh9012ijkl3456mnop7890qrst",
     createdAt: "2024-01-15T09:30:00Z",
-    completedAt: null,    
+    completedAt: null,
     applications: [
       {
-        workerId: "0xfedcbafedcbafedcbafedcbafedcbafedcbafed",    
+        workerId: "0xfedcbafedcbafedcbafedcbafedcbafedcbafed",
 
-
-        coverLetter:          "Experienced UI/UX designer with a portfolio of mobile apps",
+        coverLetter:
+          "Experienced UI/UX designer with a portfolio of mobile apps",
         estimatedTime: 10,
         appliedAt: "2024-01-15T11:00:00Z",
-
       },
     ],
   },
 ];
-
-
-
-
 
 export interface GigsApiResponse {
   success: boolean;
@@ -119,25 +114,24 @@ export interface GigsApiResponse {
   skip: number;
 }
 
-
 export const CryptoDashboard = () => {
+  const [activeTab, setActiveTab] = useState("GIGS");
+  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-   const [activeTab, setActiveTab] = useState("GIGS");
-   const [gigs, setGigs] = useState<Gig[]>([]);
-   const [loading, setLoading] = useState(false);
-   const [error, setError] = useState<string | null>(null);
-
-
-   useEffect(() => {
+  useEffect(() => {
     const fetchGigs = async () => {
       setLoading(true);
-       setGigs(gigsoo);
+      setGigs(gigsoo);
       setError(null);
       try {
-  // Prefer a Vite env var if provided, otherwise fallback to relative path
-  const apiEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-  const apiBase = apiEnv?.VITE_API_BASE || "http://localhost:3000";
-  const res = await fetch(`${apiBase}/api/gigs`);
+        // Prefer a Vite env var if provided, otherwise fallback to relative path
+        const apiEnv = (
+          import.meta as unknown as { env?: Record<string, string> }
+        ).env;
+        const apiBase = apiEnv?.VITE_API_BASE || "http://localhost:3000";
+        const res = await fetch(`${apiBase}/api/gigs`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: GigsApiResponse = await res.json();
         // setGigs(gigsoo);
@@ -159,45 +153,53 @@ export const CryptoDashboard = () => {
       <main>
         <ProfileSection />
 
-         <section className="bg-background border-t border-border">
-         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-         
-         {activeTab === "GIGS" && (
-           <div className="p-6 space-y-4">
-             {loading && <div className="text-center">Loading gigs...</div>}
-             {!loading && error && <div className="text-center text-red-500">Error: {error}</div>}
-             {!loading && !error && gigs.length === 0 && (
-               <div className="text-center text-muted-foreground">No gigs found.</div>
-             )}
-             {!loading && !error && gigs.map((gig, idx) => (
-               <GigCard
-                 key={idx}
-                  id={idx}
-                 status={gig.status}
-                 description={gig.description}
-                 price={Number(gig.paymentAmount) || 0}
-               />
-             ))}
-           </div>
-         )}
-   
-         {activeTab === "PROFILE" && (
-           <div className="p-6 text-muted-foreground text-center py-12">
-        
-             <SkillsProjects />
-             <NFTGallery />
-             <Markets />
-             <WalletTracker />
-           </div>
-         )}
-   
-         {activeTab === "TRACKER" && (
-           <div className="p-6 text-muted-foreground text-center py-12">
-      <Tracker/>
-           </div>
-         )}
-       </section>
+        <section className="bg-background border-t border-border">
+          <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
+          {activeTab === "GIGS" && (
+            <div className="p-6 space-y-4">
+              {loading && (
+                <div className="text-center">
+                  <GradientLoadingAnimation />
+                </div>
+              )}
+              {!loading && error && (
+                <div className="text-center text-red-500">Error: {error}</div>
+              )}
+              {!loading && !error && gigs.length === 0 && (
+                <div className="text-center text-muted-foreground">
+                  No gigs found.
+                </div>
+              )}
+              {!loading &&
+                !error &&
+                gigs.map((gig, idx) => (
+                  <GigCard
+                    key={idx}
+                    id={idx}
+                    status={gig.status}
+                    description={gig.description}
+                    price={Number(gig.paymentAmount) || 0}
+                  />
+                ))}
+            </div>
+          )}
+
+          {activeTab === "PROFILE" && (
+            <div className="p-6 text-muted-foreground text-center py-12">
+              <SkillsProjects />
+              <NFTGallery />
+              <Markets />
+              <WalletTracker />
+            </div>
+          )}
+
+          {activeTab === "TRACKER" && (
+            <div className="p-6 text-muted-foreground text-center py-12">
+              <Tracker />
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
