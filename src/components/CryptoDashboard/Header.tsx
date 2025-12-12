@@ -2,7 +2,20 @@ import { Circle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@/hooks/use-wallet";
 
-const navItems = ["Home", "About Us", "Ecosystem", "Lore", "Community"];
+interface NavItem {
+  name: string;
+  link: string;
+}
+
+const navItems: NavItem[] = [
+  { name: "Home", link: "/" },
+  { name: "About Us", link: "/about" },
+  { name: "Ecosystem", link: "/ecosystem" },
+  { name: "Lore", link: "/lore" },
+  { name: "Community", link: "/community" },
+];
+
+
 
 export const Header = () => {
   const {account, provider} = useWallet()
@@ -22,13 +35,13 @@ export const Header = () => {
 
       {/* Navigation */}
       <nav className="hidden md:flex items-center gap-8">
-        {navItems.map((item) => (
+        {navItems.map((item, idx) => (
           <a
-            key={item}
-            href="#"
+            key={idx}
+            href={item.link}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            {item}
+            {item.name}
           </a>
         ))}
       </nav>
