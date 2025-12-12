@@ -10,30 +10,30 @@ const trackerData = {
 
 export const Tracker = () => {
   return (
-    <section className="bg-background relative py-8 px-16 min-h-[500px]">
+    <section className="bg-background relative pt-8 pb-24 md:py-8 px-4 md:px-16 min-h-[500px]">
       {/* Social Sidebar */}
       <SocialSidebar />
-      
+
       {/* Tracker Board */}
-      <div className="flex gap-4 ml-16">
-        <TrackerColumn 
-          title="Start" 
-          items={trackerData.start} 
+      <div className="flex flex-col md:flex-row gap-8 md:gap-4 ml-0 md:ml-16">
+        <TrackerColumn
+          title="Start"
+          items={trackerData.start}
           showConnector={true}
         />
-        <TrackerColumn 
-          title="Statues" 
-          items={trackerData.statues} 
+        <TrackerColumn
+          title="Statues"
+          items={trackerData.statues}
           showConnector={true}
         />
-        <TrackerColumn 
-          title="Feedback" 
-          items={trackerData.feedback} 
+        <TrackerColumn
+          title="Feedback"
+          items={trackerData.feedback}
           showConnector={true}
         />
-        <TrackerColumn 
-          title="Done" 
-          items={trackerData.done} 
+        <TrackerColumn
+          title="Done"
+          items={trackerData.done}
           showConnector={false}
         />
       </div>
