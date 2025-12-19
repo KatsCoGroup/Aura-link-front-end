@@ -1,0 +1,1 @@
+export const BASE_URL = "https://aura-link-back-end-ixrn.onrender.com"

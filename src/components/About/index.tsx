@@ -1,4 +1,5 @@
-import { Header } from "./Header";
+// import { Header } from "./Header";
+import { Header } from "../CryptoDashboard/Header";
 import { HeroSection } from "./HeroSection";
 
 export const About = () => {

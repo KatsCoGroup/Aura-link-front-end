@@ -36,6 +36,7 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
     message: "",
     estimatedTime: 1,
   });
+  const BASE_URL = "https://aura-link-back-end-ixrn.onrender.com"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -226,7 +227,7 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
                   if (win?.x402 && typeof win.x402.pay === 'function') {
                     setLoading(true);
                     try {
-                      const tx = await win.x402.pay(paymentInfo);
+                      const tx:any = await win.x402.pay(paymentInfo);
                       const txHash = tx?.txHash || tx?.hash || tx?.transactionHash;
                       if (txHash) {
                         await submitWithTxHash(txHash);

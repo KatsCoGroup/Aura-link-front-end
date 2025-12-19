@@ -62,7 +62,7 @@ const JobApplicantsDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="default">View Applicants</Button>
+          <Button variant="outline">View Applicants</Button>
         )}
       </DialogTrigger>
       <DialogContent className="w-[90vw] max-w-[90vw] md:w-[80vw] md:max-w-[80vw] h-[85vh] max-h-[85vh] flex flex-col">
