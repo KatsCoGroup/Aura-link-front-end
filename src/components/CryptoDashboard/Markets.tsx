@@ -1,108 +1,159 @@
-import { TrendingDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
+import { BASE_URL } from "@/services/api";
+import { TradingViewWidget } from "./TradingViewWidget";
 
-const cryptoData = [
-  { symbol: "BTC", name: "BTC", price: "24,300.40", change: "-3.31%", icon: "₿" },
-  { symbol: "ETH", name: "BTC", price: "24,300.40", change: "-3.31%", icon: "◆" },
-  { symbol: "SOL", name: "BTC", price: "24,300.40", change: "-3.31%", icon: "◎" },
-];
+type MarketRow = {
+  symbol: string;
+  price: number;
+  change24h: number;
+  icon: string;
+};
 
-const chartData = [
-  { time: "08:00AM", value: 31500 },
-  { time: "09:00AM", value: 34600 },
-  { time: "10:00AM", value: 30400 },
-  { time: "11:00AM", value: 28200 },
-  { time: "12:00PM", value: 42500 },
-];
+type Point = { time: string; value: number };
+
+type MarketsResponse = { rows: MarketRow[]; source?: string };
+type ChartResponse = { series: Point[]; source?: string };
+
+const fetchMarkets = async (): Promise<MarketsResponse> => {
+  const res = await fetch(`${BASE_URL}/api/markets/prices`);
+  if (!res.ok) throw new Error("Failed to load prices");
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || "Failed to load prices");
+  return { rows: data.rows as MarketRow[], source: data.source };
+};
+
+const fetchEthSeries = async (): Promise<ChartResponse> => {
+  const res = await fetch(`${BASE_URL}/api/markets/eth-chart`);
+  if (!res.ok) throw new Error("Failed to load ETH chart");
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || "Failed to load ETH chart");
+  return { series: data.series as Point[], source: data.source };
+};
+
+const COIN_STYLES: Record<string, { bg: string; text: string }> = {
+  ETH: { bg: "bg-blue-500/15 text-blue-200", text: "text-blue-100" },
+  AVAX: { bg: "bg-red-500/15 text-red-200", text: "text-red-100" },
+  BTC: { bg: "bg-amber-500/20 text-amber-200", text: "text-amber-100" },
+};
+
+const CoinBadge = ({ symbol, icon }: { symbol: string; icon: string }) => {
+  const style = COIN_STYLES[symbol] || { bg: "bg-primary/15 text-primary", text: "text-primary" };
+  return (
+    <span className={`w-7 h-7 rounded-full ${style.bg} flex items-center justify-center text-xs font-semibold ${style.text}`}>
+      {icon}
+    </span>
+  );
+};
 
 export const Markets = () => {
+  const [rows, setRows] = useState<MarketRow[]>([]);
+  const [series, setSeries] = useState<Point[]>([]);
+  const [pricesSource, setPricesSource] = useState<string | undefined>(undefined);
+  const [chartSource, setChartSource] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [m, s] = await Promise.all([fetchMarkets(), fetchEthSeries()]);
+        setRows(m.rows);
+        setSeries(s.series);
+        setPricesSource(m.source);
+        setChartSource(s.source);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load markets");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const latestEth = useMemo(() => series[series.length - 1]?.value, [series]);
+  const ethChange = rows.find((r) => r.symbol === "ETH")?.change24h;
+  const chartSourceLabel = "TradingView";
+
   return (
     <section className="px-6 py-8 bg-background">
-      <h2 className="text-lg font-semibold mb-6">Markets</h2>
+      <h2 className="text-lg font-semibold mb-6">Markets (live)</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Hot Crypto Tables */}
-        {[0, 1].map((tableIdx) => (
-          <div key={tableIdx} className="bg-card rounded-lg p-4 border border-border">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium">Hot crypto</span>
-              <span className="text-xs text-muted-foreground">USD</span>
-            </div>
-            <div className="space-y-3">
-              {cryptoData.map((crypto, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs">
-                      {crypto.icon}
-                    </span>
-                    <span className="text-sm font-medium">{crypto.symbol}</span>
-                    <span className="text-xs text-muted-foreground">/USD</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm">{crypto.price}</span>
-                    <span className="text-destructive text-xs font-mono flex items-center gap-1">
-                      {crypto.change}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Live crypto list */}
+        <div className="bg-card rounded-lg p-4 border border-border lg:col-span-1">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium">Hot crypto</span>
+            <span className="text-xs text-muted-foreground">USD</span>
           </div>
-        ))}
+          {loading && <div className="text-xs text-muted-foreground">Loading…</div>}
+          {error && <div className="text-xs text-destructive">{error}</div>}
+          {!loading && !error && rows.length === 0 && (
+            <div className="text-xs text-muted-foreground">No market data available.</div>
+          )}
+          {!loading && !error && rows.length > 0 && (
+            <div className="space-y-3">
+              {rows.map((row) => {
+                const down = row.change24h < 0;
+                const change = `${down ? "" : "+"}${row.change24h.toFixed(2)}%`;
+                return (
+                  <div key={row.symbol} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CoinBadge symbol={row.symbol} icon={row.icon} />
+                      <span className="text-sm font-medium">{row.symbol}</span>
+                      <span className="text-xs text-muted-foreground">/USD</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-sm">${row.price.toLocaleString()}</span>
+                      <span className={`${down ? "text-destructive" : "text-green-500"} text-xs font-mono`}>
+                        {change}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-        {/* Price Chart */}
-        <div className="bg-card rounded-lg p-4 border border-border">
+        {/* ETH chart */}
+        <div className="bg-card rounded-lg p-4 border border-border lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <span className="text-xl font-bold font-mono">$42,569.43</span>
-              <span className="ml-2 text-xs text-success">+5.8</span>
+              <span className="text-xl font-bold font-mono">{latestEth ? `$${latestEth.toLocaleString()}` : "--"}</span>
+              {ethChange !== undefined && (
+                <span className={`ml-2 text-xs ${ethChange >= 0 ? "text-green-500" : "text-destructive"}`}>
+                  {ethChange >= 0 ? "+" : ""}{ethChange.toFixed(2)}%
+                </span>
+              )}
             </div>
+            <span className="text-xs text-muted-foreground">
+              ETH / USD ({chartSourceLabel})
+            </span>
           </div>
-          <div className="h-32">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(250, 60%, 50%)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="hsl(174, 72%, 56%)" stopOpacity={0.1} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="time"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 10, fill: 'hsl(0, 0%, 60%)' }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 10, fill: 'hsl(0, 0%, 60%)' }}
-                  tickFormatter={(val) => `$${(val / 1000).toFixed(1)}K`}
-                  domain={['dataMin - 5000', 'dataMax + 5000']}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(0, 0%, 5%)',
-                    border: '1px solid hsl(0, 0%, 18%)',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                  }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Value']}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="hsl(174, 72%, 56%)"
-                  strokeWidth={2}
-                  fill="url(#chartGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="h-[360px]">
+            <TradingViewWidget
+              symbol="BINANCE:ETHUSD"
+              title={undefined}
+              plain
+              className="h-full"
+              height={360}
+              hideVolume
+            />
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
-            <span>USD</span>
+            <span>24h (hourly)</span>
+            <span>Source: {chartSourceLabel}</span>
           </div>
         </div>
+      </div>
+
+      {/* TradingView live pairs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        <TradingViewWidget symbol="BINANCE:AVAXUSDT" title="AVAX / USDT" />
+        <TradingViewWidget symbol="BINANCE:ETHUSDT" title="ETH / USDT" />
       </div>
     </section>
   );

@@ -1,20 +1,29 @@
 interface TrackerCardProps {
-  username: string;
+  title: string;
   status?: string;
+  meta?: string;
+  imageUrl?: string;
   showConnector?: boolean;
 }
 
-export const TrackerCard = ({ username, status, showConnector = true }: TrackerCardProps) => {
+export const TrackerCard = ({ title, status, meta, imageUrl, showConnector = true }: TrackerCardProps) => {
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2 flex-1">
-        {/* Avatar placeholder */}
-        <div className="w-8 h-8 bg-muted rounded-md flex-shrink-0" />
+        <div className="w-10 h-10 rounded bg-muted overflow-hidden flex-shrink-0">
+          {imageUrl ? (
+            <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
+        </div>
 
-        {/* Username or Status */}
-        <span className="text-sm text-foreground">
-          {status || username}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-sm text-foreground font-medium line-clamp-1">{title}</span>
+          <span className="text-xs text-muted-foreground line-clamp-1">
+            {status || meta || ""}
+          </span>
+        </div>
       </div>
 
       {/* Connector line */}

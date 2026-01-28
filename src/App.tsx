@@ -20,7 +20,11 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={isConnected ? <Index /> : <AuthPage />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/dashboard"
+              element={isConnected ? <Index /> : <Navigate to="/auth" replace />}
+            />
             <Route path="/auth" element={<AuthPage />} />
             <Route
               path="/about"
