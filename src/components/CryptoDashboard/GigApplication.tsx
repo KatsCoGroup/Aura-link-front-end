@@ -11,16 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { gigAPI } from "@/services/api";
 
 interface JobApplicationDialogProps {
   trigger?: React.ReactNode;
-  id: number
+  gigId: string;
 }
 
-const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
+const JobApplicationDialog = ({ trigger, gigId }: JobApplicationDialogProps) => {
   const [open, setOpen] = useState(false);
-  // removed duplicate formData; using formDataExtended below
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentRequired, setPaymentRequired] = useState(false);
@@ -36,7 +35,6 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
     message: "",
     estimatedTime: 1,
   });
-  const BASE_URL = "https://aura-link-back-end-ixrn.onrender.com"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,36 +53,24 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
         estimatedTime: Number(formDataExtended.estimatedTime) || 1,
       };
 
-      const res = await fetch(`/api/gigs/${id}/apply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      await gigAPI.applyToGig(gigId, payload);
 
-      if (res.status === 402) {
-        // Payment required. Backend should return payment details to pass to x402 or show to user.
-        const json = await res.json().catch(() => ({}));
-        setPaymentInfo(json || {});
+      // Success
+      setLoading(false);
+      setFormDataExtended({ name: "", message: "", estimatedTime: 1 });
+      setOpen(false);
+      console.log('Application submitted successfully');
+    } catch (err: any) {
+      // Check if it's a 402 Payment Required error
+      if (err.status === 402) {
+        setPaymentInfo(err.paymentInfo || {});
         setPaymentRequired(true);
         setLoading(false);
         return;
       }
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Unknown error' }));
-        setError(err.message || 'Failed to apply for gig.');
-        setLoading(false);
-        return;
-      }
-
-  // Success
-  setLoading(false);
-  setFormDataExtended({ name: "", message: "", estimatedTime: 1 });
-      setOpen(false);
-      console.log('Application submitted successfully');
-    } catch (err) {
+      
       console.error('Apply error', err);
-      setError('Failed to submit application.');
+      setError(err.message || 'Failed to submit application.');
       setLoading(false);
     }
   };
@@ -104,30 +90,19 @@ const JobApplicationDialog = ({ trigger, id }: JobApplicationDialogProps) => {
         paymentTxHash: txHash,
       };
 
-      const res = await fetch(`/api/gigs/${id}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setError(err.message || 'Payment verification or application failed.');
-        setLoading(false);
-        return;
-      }
+      await gigAPI.applyToGig(gigId, payload);
 
       // success
-  setPaymentRequired(false);
-  setPaymentInfo(null);
-  setTxHashInput('');
-  setLoading(false);
-  setOpen(false);
-  setFormDataExtended({ name: "", message: "", estimatedTime: 1 });
+      setPaymentRequired(false);
+      setPaymentInfo(null);
+      setTxHashInput('');
+      setLoading(false);
+      setOpen(false);
+      setFormDataExtended({ name: "", message: "", estimatedTime: 1 });
       console.log('Application submitted after payment');
-    } catch (err) {
+    } catch (err: any) {
       console.error('submitWithTxHash error', err);
-      setError('Failed to verify payment.');
+      setError(err.message || 'Failed to verify payment.');
       setLoading(false);
     }
   };

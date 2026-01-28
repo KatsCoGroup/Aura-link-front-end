@@ -1,22 +1,13 @@
 // hooks/use-user-auth.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@/hooks/use-wallet";
-import { BASE_URL } from "@/lib/constants";
-
-interface UserProfile {
-  address: string;
-  displayName: string;
-  bio: string;
-  profileImage: string;
-}
+import { userAPI, type User } from "@/services/api";
 
 export const useUserAuth = () => {
   const { account } = useWallet();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
   const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false); // Flag to trigger registration
-  const apiEnv = (import.meta as unknown as { env?: Record<string, string> })
-    .env;
 
   // Check DB when wallet connects
   useEffect(() => {
@@ -29,25 +20,21 @@ export const useUserAuth = () => {
 
       setIsCheckingUser(true);
       try {
-        const response = await fetch(`${BASE_URL}/api/users/${account}`);
-
-        if (response.ok) {
-          console.log(response)
-          const {user} = await response.json();
-          setUserProfile(user);
-          setIsNewUser(false);
-        } else if (response.status === 404) {
-          // User connects wallet but isn't in MongoDB yet
+        const response = await userAPI.getProfile(account);
+        setUserProfile(response.user);
+        setIsNewUser(false);
+      } catch (error: any) {
+        // If user not found (404), mark as new user
+        if (error.message.includes('404') || error.message.includes('not found')) {
           setUserProfile(null);
           setIsNewUser(true);
+        } else {
+          console.error("Failed to fetch user profile", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch user profile", error);
       } finally {
         setIsCheckingUser(false);
       }
     };
-
 
     checkUserParams();
   }, [account]);
@@ -57,25 +44,19 @@ export const useUserAuth = () => {
     displayName: string;
     bio: string;
     profileImage: string;
+    skills?: string[];
   }) => {
     if (!account) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/api/users/profile`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: account, // derived from wallet
-          ...data,
-        }),
+      const response = await userAPI.createOrUpdateProfile({
+        address: account,
+        ...data,
       });
 
-      if (!response.ok) throw new Error("Registration failed");
-
-      const newUser = await response.json();
-      setUserProfile(newUser);
+      setUserProfile(response.user);
       setIsNewUser(false); // No longer a new user
-      return newUser;
+      return response.user;
     } catch (error) {
       console.error(error);
       throw error;
@@ -87,5 +68,24 @@ export const useUserAuth = () => {
     isNewUser,
     isCheckingUser,
     registerUser,
+    setUserProfile,
+    updateSkills: async (skills: string[]) => {
+      if (!account) return;
+      const response = await userAPI.updateSkills({ address: account, skills });
+      setUserProfile(response.user);
+      return response.user;
+    },
+    requestSkillVerification: async (skill: string) => {
+      if (!account) return;
+      const response = await userAPI.requestSkillVerification({ address: account, skill });
+      setUserProfile(response.user);
+      return response.user;
+    },
+    createProject: async (payload: { title: string; stack?: string; skills?: string[] }) => {
+      if (!account) return;
+      const response = await userAPI.createProject({ address: account, ...payload });
+      setUserProfile(response.user);
+      return response.user;
+    },
   };
 };

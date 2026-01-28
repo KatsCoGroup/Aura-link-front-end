@@ -2,7 +2,7 @@ import { TrackerCard } from "./TrackerCard";
 
 interface TrackerColumnProps {
   title: string;
-  items: { username: string; status?: string }[];
+  items: { title: string; status?: string; meta?: string; imageUrl?: string }[];
   showConnector?: boolean;
 }
 
@@ -19,8 +19,10 @@ export const TrackerColumn = ({ title, items, showConnector = true }: TrackerCol
         {items.map((item, index) => (
           <TrackerCard
             key={index}
-            username={item.username}
+            title={item.title}
             status={item.status}
+            meta={item.meta}
+            imageUrl={item.imageUrl}
             showConnector={showConnector}
           />
         ))}

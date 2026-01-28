@@ -50,16 +50,21 @@ export const Header = () => {
 
         {/* --- DYNAMIC ACTION AREA --- */}
         <div className="flex items-center gap-4">
-       
+          {/* Not connected: show connect CTA */}
+          {!isConnected && (
+            <Button variant="default" className="rounded-full" onClick={connectWallet}>
+              Connect Wallet
+            </Button>
+          )}
 
-          {/* State 2: Connected but New User (Show button just in case modal is closed) */}
+          {/* Connected but new user: nudge to finish registration */}
           {isConnected && isNewUser && (
             <Button variant="secondary" className="animate-pulse rounded-full">
               Complete Registration
             </Button>
           )}
 
-          {/* State 3: Fully Logged In (Connected + Profile exists) */}
+          {/* Connected with profile */}
           {isConnected && userProfile && (
             <Button variant="outline" className="gap-2 rounded-full px-4">
               <span className="text-sm  text-foreground">
@@ -80,8 +85,7 @@ export const Header = () => {
             </Button>
           )}
 
-          {/*  Disconnect Button */}
-          {/* Only visible when connected.*/}
+          {/* Disconnect */}
           {isConnected && (
             <Button
               variant="ghost"

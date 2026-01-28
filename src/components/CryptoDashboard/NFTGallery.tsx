@@ -1,21 +1,67 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { TrendingUp } from "lucide-react";
 
-const categories = [
-  { id: "kaiso", name: "KAISO NFTS", count: "0/0" },
-  { id: "opensea", name: "OPENSEA NFTS", count: "0/0" },
-  { id: "magiceden", name: "MAGIC EDEN NFTS", count: "0/0" },
-  { id: "airdrops", name: "AIRDROPS", count: "0/0" },
+type NFTItem = {
+  name: string;
+  number: string;
+  floor: string;
+};
+
+const nftCollections: Array<{
+  id: string;
+  name: string;
+  count: string;
+  items: NFTItem[];
+}> = [
+  {
+    id: "pudgy",
+    name: "Pudgy Penguins",
+    count: "10K",
+    items: [
+      { name: "Pudgy Penguin", number: "#6873", floor: "12.5 ETH" },
+      { name: "Pudgy Penguin", number: "#1421", floor: "12.5 ETH" },
+      { name: "Pudgy Penguin", number: "#4120", floor: "12.5 ETH" },
+    ],
+  },
+  {
+    id: "azuki",
+    name: "Azuki",
+    count: "10K",
+    items: [
+      { name: "Azuki", number: "#9217", floor: "6.4 ETH" },
+      { name: "Azuki", number: "#2815", floor: "6.4 ETH" },
+      { name: "Azuki", number: "#1022", floor: "6.4 ETH" },
+    ],
+  },
+  {
+    id: "bayc",
+    name: "BAYC",
+    count: "10K",
+    items: [
+      { name: "Bored Ape", number: "#1142", floor: "23.1 ETH" },
+      { name: "Bored Ape", number: "#9910", floor: "23.1 ETH" },
+      { name: "Bored Ape", number: "#6028", floor: "23.1 ETH" },
+    ],
+  },
+  {
+    id: "degods",
+    name: "DeGods",
+    count: "10K",
+    items: [
+      { name: "DeGods", number: "#2509", floor: "3.1 ETH" },
+      { name: "DeGods", number: "#1120", floor: "3.1 ETH" },
+      { name: "DeGods", number: "#0715", floor: "3.1 ETH" },
+    ],
+  },
 ];
 
-const nfts = Array(12).fill({
-  name: "NAME",
-  number: "NO. 000",
-});
-
 export const NFTGallery = () => {
-  const [activeCategory, setActiveCategory] = useState("kaiso");
+  const [activeCategory, setActiveCategory] = useState("pudgy");
+
+  const activeItems = useMemo(() => {
+    return nftCollections.find((c) => c.id === activeCategory)?.items ?? [];
+  }, [activeCategory]);
 
 
   return (
@@ -24,7 +70,7 @@ export const NFTGallery = () => {
       {/* Category Tabs */}
 
       <div className="flex flex-wrap gap-4 mb-6 text-xs">
-        {categories.map((cat) => (
+        {nftCollections.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
@@ -42,16 +88,14 @@ export const NFTGallery = () => {
 
       {/* NFT Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {nfts.map((nft, i) => (
-          <div key={i} className="group cursor-pointer animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
-            <div className="aspect-square rounded-lg bg-muted mb-2 relative overflow-hidden group-hover:ring-1 group-hover:ring-primary/50 transition-all">
-              {/* Last item shows chart preview */}
-              {i === 5 && (
-                <div className="absolute inset-0 gradient-chart flex items-end p-2">
-                  <div className="flex items-center gap-1 text-xs">
-                    <span className="text-success font-mono">$34.56K</span>
-                    <TrendingUp className="w-3 h-3 text-success" />
-                  </div>
+        {activeItems.map((nft, i) => (
+          <div key={`${activeCategory}-${i}`} className="group cursor-pointer animate-fade-in" style={{ animationDelay: `${i * 40}ms` }}>
+            <div className="aspect-square rounded-lg bg-gradient-to-br from-primary/20 via-muted to-muted-foreground/10 mb-2 relative overflow-hidden group-hover:ring-1 group-hover:ring-primary/50 transition-all flex items-center justify-center">
+              <span className="text-sm font-semibold text-foreground">{nft.name.split(" ")[0]}</span>
+              {i === 0 && (
+                <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[10px] font-mono flex items-center gap-1">
+                  <span className="text-success">{nft.floor}</span>
+                  <TrendingUp className="w-3 h-3 text-success" />
                 </div>
               )}
             </div>
